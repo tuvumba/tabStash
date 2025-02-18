@@ -1,5 +1,26 @@
+/*.roboto-font {*/
+/*             font-family: "Roboto", serif;*/
+/*             font-optical-sizing: auto;*/
+/*             font-weight: 600;*/
+/*             font-style: normal;*/
+/*             font-variation-settings:*/
+/*                     "wdth" 100;*/
+/*         }*/
+
+:root {
+    /*scrollbar-color: transparent transparent;*/
+    overflow: scroll;
+    scrollbar-color: #1e1e1e #121212;
+    scrollbar-width: thin;
+}
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Roboto", serif;
+    font-optical-sizing: auto;
+    font-weight: 350;
+    font-style: normal;
+    font-variation-settings:
+            "wdth" 100;
     background: #121212; 
     color: #e0e0e0; 
     margin: 0;
@@ -8,13 +29,14 @@ body {
 }
 #popup {
     width: 100%;
-    padding: 15px;
+    padding: 15px 10px 15px 15px;
     box-sizing: border-box;
 }
 
 
 h2 {
     margin: 15px;
+    font-weight: 600;
     font-size: 1.2rem;
     color: #ffffff;
     text-align: center;
@@ -25,7 +47,6 @@ button {
     border: 1px solid #333;
     color: #e0e0e0;
     padding: 5px 10px;
-    font-size: 14px;
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
@@ -40,6 +61,8 @@ button:hover {
 #save {
     width: 100%;
     padding: 8px;
+    font-family: "Roboto", serif;
+    font-weight: 500;
     font-size: 16px;
     margin-bottom: 10px;
     background: #ab65fc;
@@ -67,6 +90,9 @@ ul {
 }
 
 .session-name {
+    padding-left: 5px;
+    font-weight: 500;
+    font-size: 1.1rem;
     flex-grow: 1;
     max-width: 70%;
     overflow-wrap: break-word;
@@ -85,11 +111,17 @@ ul {
     color: #bf40f0;
 }
 
+.link-item .icon-button{
+    margin: 0 5px 0 5px;
+}
+
 .links-container {
-    background: #222;
-    padding: 8px;
+    /*background: #222;*/
+    padding: 8px 8px 8px 8px;
     border-radius: 5px;
-    margin-top: 5px;
+    margin: 0 0 15px 0;
+    font-size: 0.9rem;
+    font-weight: 400;
 }
 
 .links-container.hidden {
@@ -100,7 +132,10 @@ ul {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 5px 0;
+    padding: 10px 0 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    background: #222;
 }
 
 .link-item a {
@@ -128,4 +163,8 @@ ul {
     align-items: center;
     gap: 5px;
     margin-top: 5px;
+}
+
+.invisible {
+    visibility: hidden;
 }

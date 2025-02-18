@@ -40,6 +40,7 @@ async function saveSession() {
 
 async function deleteSession(sessionId) {
     let storedData = await browser.storage.local.get("sessions");
+    //Add Delete confirmation here
     let sessions = storedData.sessions || [];
 
     let updatedSessions = sessions.filter(session => session.id !== sessionId);

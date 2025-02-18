@@ -21,25 +21,31 @@ async function loadSessions() {
         nameSpan.classList.add("session-name");
 
         let toggleBtn = document.createElement("button");
-        toggleBtn.innerHTML = session.toggleState ? "v" : ">"; 
+        // toggleBtn.innerHTML = session.toggleState ? "v" : ">";     previous
+        toggleBtn.innerHTML = session.toggleState ? "&#9207" : "&#9205"; //down & right
         toggleBtn.classList.add("icon-button");
+        toggleBtn.id = "toggleBtn";
         toggleBtn.addEventListener("click", () => toggleLinks(session.id, toggleBtn));
 
         let openBtn = document.createElement("button");
-        openBtn.innerHTML = "&#128449;"; // open button
+        openBtn.innerHTML = "&#8689"; // open button
         openBtn.classList.add("icon-button");
+        openBtn.id = "openBtn";
         openBtn.title = "Open"
         openBtn.addEventListener("click", () => openSession(session.id));
 
         let editBtn = document.createElement("button");
         editBtn.innerHTML = "&#9998;"; // edit pencil
         editBtn.classList.add("icon-button");
+        editBtn.id = "editBtn";
         editBtn.title = "Edit";
         editBtn.addEventListener("click", () => startEditing(nameSpan, session.id));
 
         let deleteBtn = document.createElement("button");
-        deleteBtn.innerHTML = "&#128465;"; // trashcan
+        //deleteBtn.innerHTML = "&#128465;"; // trashcan
+        deleteBtn.innerHTML = "&#9747"; //cross
         deleteBtn.classList.add("icon-button");
+        deleteBtn.id = "deleteBtn";
         deleteBtn.title = "Delete";
         deleteBtn.addEventListener("click", () => deleteSession(session.id));
 
@@ -63,7 +69,8 @@ async function loadSessions() {
             link.target = "_blank";
 
             let deleteLinkBtn = document.createElement("button");
-            deleteLinkBtn.innerHTML = "&#128465;"; // Trash icon
+            //deleteLinkBtn.innerHTML = "&#128465;"; // Trash icon
+            deleteLinkBtn.innerHTML = "&#9747"; //cross icon
             deleteLinkBtn.classList.add("icon-button");
             deleteLinkBtn.addEventListener("click", () => deleteLink(session.id, index));
 
@@ -120,10 +127,10 @@ function toggleLinks(sessionId, toggleBtn) {
             let linksContainer = toggleBtn.parentElement.nextElementSibling;
             if (session.toggleState) {
                 linksContainer.style.display = "block";
-                toggleBtn.innerHTML = "v";
+                toggleBtn.innerHTML = "&#9207"; //down
             } else {
                 linksContainer.style.display = "none";
-                toggleBtn.innerHTML = ">"; 
+                toggleBtn.innerHTML = "&#9205"; //right
             }
         }
     });
@@ -207,6 +214,16 @@ async function restoreSession(sessionId) {
 }
 
 function startEditing(nameSpan, sessionId) {
+    //remove icons while editing
+    let toggleBtn = document.getElementById("toggleBtn");
+    let editBtn = document.getElementById("editBtn");
+    let openBtn = document.getElementById("openBtn");
+    let deleteBtn = document.getElementById("deleteBtn");
+    toggleBtn.style.display = "none";
+    openBtn.style.display = "none";
+    deleteBtn.style.display = "none";
+    editBtn.innerHTML = "&#10003";
+
     // create input field
     let nameInput = document.createElement("input");
     nameInput.value = nameSpan.textContent; // set to current name
