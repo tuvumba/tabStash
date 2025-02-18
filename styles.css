@@ -1,34 +1,131 @@
-
+body {
+    font-family: Arial, sans-serif;
+    background: #121212; 
+    color: #e0e0e0; 
+    margin: 0;
+    padding: 0;
+    width: 300px;
+}
 #popup {
-    width: 80%;
-    max-width: 500px; 
-    margin: 0 auto; 
-    padding: 20px; 
+    width: 100%;
+    padding: 15px;
+    box-sizing: border-box;
 }
 
+
+h2 {
+    margin: 15px;
+    font-size: 1.2rem;
+    color: #ffffff;
+    text-align: center;
+}
+
+button {
+    background: #1e1e1e;
+    border: 1px solid #333;
+    color: #e0e0e0;
+    padding: 5px 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+    background: #292929;
+    border-color: #444;
+    color: #ffffff;
+}
+
+#save {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    margin-bottom: 10px;
+    background: #ab65fc;
+    border: none;
+    color: #fff;
+}
+
+#save:hover {
+    background: #bf40f0;
+}
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
 .session-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    background: #1a1a1a;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
-
 
 .session-name {
     flex-grow: 1;
-    word-wrap: break-word; 
-    max-width: 80%;
-    overflow-wrap: break-word; 
+    max-width: 70%;
+    overflow-wrap: break-word;
 }
 
 .icon-button {
-    margin-left: 10px;
     background: none;
     border: none;
-    font-size: 20px;
+    font-size: 16px;
+    color: #999;
     cursor: pointer;
+    transition: color 0.2s;
 }
 
 .icon-button:hover {
-    color: #007bff;
+    color: #bf40f0;
+}
+
+.links-container {
+    background: #222;
+    padding: 8px;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+.links-container.hidden {
+    display: none;
+}
+
+.link-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+}
+
+.link-item a {
+    color: #b8b8b8;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.link-item a:hover {
+    color: #be65e1;
+}
+
+.edit-input {
+    width: 70%;
+    padding: 5px;
+    border: 1px solid #444;
+    background: #1e1e1e;
+    color: #e0e0e0;
+    border-radius: 5px;
+    outline: none;
+}
+
+.add-link-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
 }

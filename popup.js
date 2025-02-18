@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", loadSessions);
 document.getElementById("save").addEventListener("click", () => {
     browser.runtime.sendMessage({ action: "saveSession" });
 });
-
 async function loadSessions() {
     console.log("Loading sessions...");
     let storedData = await browser.storage.local.get("sessions");
@@ -14,52 +13,184 @@ async function loadSessions() {
     sessions.forEach(session => {
         let li = document.createElement("li");
 
-        // div for session name and buttons
         let sessionItem = document.createElement("div");
         sessionItem.classList.add("session-item");
 
-        // session name element
         let nameSpan = document.createElement("span");
         nameSpan.textContent = session.name || `Session ${session.id}`;
         nameSpan.classList.add("session-name");
 
-        // input for editing, hidden by default
-        let nameInput = document.createElement("input");
-        nameInput.type = "text";
-        nameInput.value = session.name || `Session ${session.id}`;
-        nameInput.classList.add("edit-input");
-        nameInput.style.display = "none"; // Hide initially
+        let toggleBtn = document.createElement("button");
+        toggleBtn.innerHTML = session.toggleState ? "v" : ">"; 
+        toggleBtn.classList.add("icon-button");
+        toggleBtn.addEventListener("click", () => toggleLinks(session.id, toggleBtn));
 
-        // edit button with Unicode icon
-        let editBtn = document.createElement("button");
-        editBtn.innerHTML = "&#9998;"; // karandashik
-        editBtn.classList.add("icon-button");
-        editBtn.addEventListener("click", () => startEditing(nameSpan, nameInput, session.id));
-
-        // delete button with Unicode icon
-        let deleteBtn = document.createElement("button");
-        deleteBtn.innerHTML = "&#128465;"; // korzino4ka
-        deleteBtn.classList.add("icon-button");
-        deleteBtn.addEventListener("click", () => deleteSession(session.id));
-
-        // open button with Unicode icon
         let openBtn = document.createElement("button");
-        openBtn.innerHTML = "&#128269;"; // lupa
+        openBtn.innerHTML = "&#128449;"; // open button
         openBtn.classList.add("icon-button");
+        openBtn.title = "Open"
         openBtn.addEventListener("click", () => openSession(session.id));
 
+        let editBtn = document.createElement("button");
+        editBtn.innerHTML = "&#9998;"; // edit pencil
+        editBtn.classList.add("icon-button");
+        editBtn.title = "Edit";
+        editBtn.addEventListener("click", () => startEditing(nameSpan, session.id));
+
+        let deleteBtn = document.createElement("button");
+        deleteBtn.innerHTML = "&#128465;"; // trashcan
+        deleteBtn.classList.add("icon-button");
+        deleteBtn.title = "Delete";
+        deleteBtn.addEventListener("click", () => deleteSession(session.id));
+
+        
+
+        let linksContainer = document.createElement("div");
+        linksContainer.classList.add("links-container");
+
+        // initial folding
+        if (!session.toggleState) {
+            linksContainer.classList.add("hidden");
+        }
+
+        session.tabs.forEach((tab, index) => {
+            let linkItem = document.createElement("div");
+            linkItem.classList.add("link-item");
+
+            let link = document.createElement("a");
+            link.href = tab.url;
+            link.textContent = tab.title || tab.url;
+            link.target = "_blank";
+
+            let deleteLinkBtn = document.createElement("button");
+            deleteLinkBtn.innerHTML = "&#128465;"; // Trash icon
+            deleteLinkBtn.classList.add("icon-button");
+            deleteLinkBtn.addEventListener("click", () => deleteLink(session.id, index));
+
+            linkItem.appendChild(link);
+            linkItem.appendChild(deleteLinkBtn);
+            linksContainer.appendChild(linkItem);
+        });
+
+        // link input field
+        let addLinkInput = document.createElement("input");
+        addLinkInput.type = "text";
+        addLinkInput.placeholder = "Enter new link..."; 
+        addLinkInput.classList.add("edit-input");
+
+        let addLinkBtn = document.createElement("button");
+        addLinkBtn.textContent = "+";
+        addLinkBtn.classList.add("icon-button");
+        addLinkBtn.addEventListener("click", () => addLink(session.id, addLinkInput));
+
+        let addLinkContainer = document.createElement("div");
+        addLinkContainer.classList.add("add-link-container");
+        addLinkContainer.appendChild(addLinkInput);
+        addLinkContainer.appendChild(addLinkBtn);
+
+        linksContainer.appendChild(addLinkContainer);
+
+        sessionItem.appendChild(toggleBtn);
         sessionItem.appendChild(nameSpan);
-        sessionItem.appendChild(nameInput);
+        sessionItem.appendChild(openBtn);
         sessionItem.appendChild(editBtn);
         sessionItem.appendChild(deleteBtn);
-        sessionItem.appendChild(openBtn);
+        
 
         li.appendChild(sessionItem);
+        li.appendChild(linksContainer);
         sessionList.appendChild(li);
     });
 
     console.log("Sessions loaded:", sessions);
 }
+
+
+function toggleLinks(sessionId, toggleBtn) {
+    browser.storage.local.get("sessions", function(storedData) {
+        let sessions = storedData.sessions || [];
+        let session = sessions.find(s => s.id === sessionId);
+
+        if (session) {
+            session.toggleState = !session.toggleState;
+            // save the updated toggle
+            browser.storage.local.set({ sessions: sessions });
+
+            // apply the folding style
+            let linksContainer = toggleBtn.parentElement.nextElementSibling;
+            if (session.toggleState) {
+                linksContainer.style.display = "block";
+                toggleBtn.innerHTML = "v";
+            } else {
+                linksContainer.style.display = "none";
+                toggleBtn.innerHTML = ">"; 
+            }
+        }
+    });
+}
+
+async function deleteLink(sessionId, linkIndex) {
+    browser.runtime.sendMessage({ action: "deleteLink", sessionId, linkIndex });
+}
+
+// try to get the title of the page
+async function fetchTitle(url) {
+    try {
+        let response = await fetch(url);
+        let text = await response.text();
+        let doc = new DOMParser().parseFromString(text, "text/html");
+        return doc.querySelector("title")?.innerText || url;
+    } catch (error) {
+        console.error("Failed to fetch title:", error);
+        return url;
+    }
+}
+
+
+async function addLink(sessionId, inputElement) {
+    let newUrl = inputElement.value.trim();
+    console.log("Adding ", newUrl);
+    if (!newUrl) return;
+
+    if (!newUrl.startsWith("http://") && !newUrl.startsWith("https://")) {
+        newUrl = "https://" + newUrl; // default https
+    }
+
+
+    try {
+        let title = await fetchTitle(newUrl);
+        console.log("Fetched title:", title);
+
+        browser.runtime.sendMessage({ 
+            action: "addLink", 
+            sessionId, 
+            newUrl, 
+            title 
+        });
+    } catch (error) {
+        console.error("Error fetching title:", error);
+        browser.runtime.sendMessage({ 
+            action: "addLink", 
+            sessionId, 
+            newUrl, 
+            title: newUrl // url title fallback
+        });
+    }
+
+    inputElement.value = ""; 
+}
+
+
+browser.runtime.onMessage.addListener((message) => {
+    console.log("Received message in popup.js:", message);
+    if (["sessionSaved", "sessionDeleted", "sessionUpdated"].includes(message.action)) {
+        loadSessions();
+    } else if (["linkDeleted", "linkAdded"].includes(message.action)){
+        loadSessions(false);
+    } else {
+        console.log("Unknown message in popup.js!");
+    }
+});
 
 
 async function restoreSession(sessionId) {
@@ -75,9 +206,18 @@ async function restoreSession(sessionId) {
     }
 }
 
-function startEditing(nameSpan, nameInput, sessionId) {
-    nameSpan.style.display = "none";
-    nameInput.style.display = "inline-block";
+function startEditing(nameSpan, sessionId) {
+    // create input field
+    let nameInput = document.createElement("input");
+    nameInput.value = nameSpan.textContent; // set to current name
+    nameInput.classList.add("edit-input");
+
+    nameSpan.style.display = "none";  // hide the name span 
+
+    // so it remains on the same place
+    nameSpan.parentElement.insertBefore(nameInput, nameSpan.parentElement.querySelector(".icon-button"));
+
+    nameInput.style.display = "inline-block";  // show the input field
     nameInput.focus();
 
     nameInput.addEventListener("blur", () => saveEdit(sessionId, nameInput));
@@ -87,6 +227,8 @@ function startEditing(nameSpan, nameInput, sessionId) {
         }
     });
 }
+
+
 
 async function saveEdit(sessionId, nameInput) {
     let newName = nameInput.value.trim();
@@ -108,11 +250,3 @@ async function deleteSession(sessionId) {
 async function openSession(sessionId) {
     browser.runtime.sendMessage({ action: "openSession", sessionId: sessionId });
 }
-
-browser.runtime.onMessage.addListener((message) => {
-    console.log("Received message in popup.js:", message);
-
-    if (message.action === "sessionSaved" || message.action === "sessionDeleted" || message.action === "sessionUpdated") {
-        loadSessions();
-    } 
-});

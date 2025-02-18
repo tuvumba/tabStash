@@ -1,26 +1,22 @@
 {
-    "manifest_version": 3,
+    "manifest_version": 2,
     "name": "Tab Stash",
     "version": "1.0",
     "description": "Save and restore sessions of open tabs.",
     "icons": {
-        "48": "icon.png"
+        "128": "iconBook.png"
     },
     "permissions": [
       "tabs",
       "storage"
     ],
-
-    "host_permissions": ["<all_urls>"],
     "background": {
         "scripts": ["background.js"]
     },
 
-    "action": {
-      "default_popup": "popup.html",
-      "default_icon": {
-        "48": "icon.png"
-      }
-    }
+    "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": "iconBook.png"
+  }
   }
   

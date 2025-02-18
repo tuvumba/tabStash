@@ -9,7 +9,12 @@ browser.runtime.onMessage.addListener(async (message) => {
         await editSession(message.sessionId, message.newName);
     } else if (message.action === "openSession") {
         await openSession(message.sessionId);
+    } else if (message.action == "deleteLink"){
+        await deleteLink(message.sessionId, message.linkIndex);
+    } else if (message.action == "addLink"){
+        await addLink(message.sessionId, message.newUrl, message.title);
     }
+
 });
 
 async function saveSession() {
@@ -22,7 +27,8 @@ async function saveSession() {
     let newSession = {
         id: Date.now(),
         name: `Session ${sessions.length + 1}`,
-        tabs: sessionTabs
+        tabs: sessionTabs, 
+        toggleState: false
     };
 
     sessions.push(newSession);
@@ -70,3 +76,33 @@ async function openSession(sessionId) {
         console.log("Session opened:", session);
     }
 }
+
+async function deleteLink(sessionId, linkIndex) {
+    let storedData = await browser.storage.local.get("sessions");
+    let sessions = storedData.sessions || [];
+    let session = sessions.find(s => s.id === sessionId);
+
+    if (session && session.tabs.length > linkIndex) {
+        session.tabs.splice(linkIndex, 1); // delete the link
+        await browser.storage.local.set({ sessions });
+
+        console.log(`Deleted link ${linkIndex} from session ${sessionId}`);
+        browser.runtime.sendMessage({ action: "linkDeleted", sessionId: sessionId });
+    }
+}
+
+async function addLink(sessionId, newUrl, title) {
+    let storedData = await browser.storage.local.get("sessions");
+    let sessions = storedData.sessions || [];
+    let session = sessions.find(s => s.id === sessionId);
+
+    if (session) {
+        session.tabs.push({ url: newUrl, title: title }); // push new link
+        await browser.storage.local.set({ sessions });
+
+        console.log(`Added link to session ${sessionId}: ${newUrl}`);
+        browser.runtime.sendMessage({ action: "linkAdded", sessionId: sessionId });
+    }
+}
+
+
